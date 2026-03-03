@@ -1,0 +1,1 @@
+/usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names "CMakeFiles/Question-1-out.dir/Q1/Question-1.cc.o" -o Question-1-out  -lpthread

@@ -1,0 +1,6 @@
+/Users/sambain/Documents/redbackAssessment/av-technical-assessment-z5462281/build/CMakeFiles/Question-1-out.dir
+/Users/sambain/Documents/redbackAssessment/av-technical-assessment-z5462281/build/CMakeFiles/Question-2-out.dir
+/Users/sambain/Documents/redbackAssessment/av-technical-assessment-z5462281/build/CMakeFiles/Question-3-out.dir
+/Users/sambain/Documents/redbackAssessment/av-technical-assessment-z5462281/build/CMakeFiles/test.dir
+/Users/sambain/Documents/redbackAssessment/av-technical-assessment-z5462281/build/CMakeFiles/edit_cache.dir
+/Users/sambain/Documents/redbackAssessment/av-technical-assessment-z5462281/build/CMakeFiles/rebuild_cache.dir
