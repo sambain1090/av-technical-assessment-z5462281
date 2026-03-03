@@ -20,3 +20,44 @@
 // Resources:
 // https://www.csselectronics.com/pages/can-bus-simple-intro-tutorial
 // https://www.csselectronics.com/pages/can-dbc-file-database-intro
+
+void writeRRSpeed(std::ifstream& candump, std::ofstream& output);
+
+int main() {
+    std::ifstream candump("../Q1/candump.log");
+    std::ofstream output("../Q1/output.txt");
+
+    writeRRSpeed(candump, output);
+
+    candump.close();
+    output.close();
+
+    return 0;
+}
+
+// Takes in an ifstream of the CAN dump and an output stream. It decodes the 
+// rear-right wheel speed and sends it pushes it to the output stream given
+void writeRRSpeed(std::ifstream& candump, std::ofstream& output) {
+    std::string line;
+    std::string dataString;
+    uint16_t RRBytes;
+    double wheelSpeedRR;
+
+    while (getline (candump, line)) {
+        if (line.length() > 42) {
+
+            RRBytes = (std::stoi(line.substr(40, 2), nullptr, 16) << 8) | 
+                (std::stoi(line.substr(38, 2), nullptr, 16));
+            // Gets the hexidecimal value for the rear-right wheel speed in little
+            // endian
+            
+            wheelSpeedRR = static_cast<int>(RRBytes) * 0.1; 
+            // Scalar is 0.1, offset is 0
+            // Scales the wheel speed to the correct measurement
+
+            output << line.substr(0, 19) << ": " << wheelSpeedRR << std::endl;
+            // Sends a string in this form (<UNIX_TIME>): <DECODED_VALUE> to the
+            // output output stream
+        }
+    }
+}
