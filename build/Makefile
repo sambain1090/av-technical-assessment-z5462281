@@ -95,6 +95,51 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
 
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/opt/homebrew/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/opt/homebrew/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/opt/homebrew/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/opt/homebrew/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/opt/homebrew/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/opt/homebrew/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
+
 # The main all target
 all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/sambain/Documents/redbackAssessment/av-technical-assessment-z5462281/build/CMakeFiles /Users/sambain/Documents/redbackAssessment/av-technical-assessment-z5462281/build//CMakeFiles/progress.marks
@@ -165,6 +210,71 @@ Question-3-out/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Question-3-out.dir/build.make CMakeFiles/Question-3-out.dir/build
 .PHONY : Question-3-out/fast
 
+#=============================================================================
+# Target rules for targets named Question-2-test
+
+# Build rule for target.
+Question-2-test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 Question-2-test
+.PHONY : Question-2-test
+
+# fast build rule for target.
+Question-2-test/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Question-2-test.dir/build.make CMakeFiles/Question-2-test.dir/build
+.PHONY : Question-2-test/fast
+
+#=============================================================================
+# Target rules for targets named gmock
+
+# Build rule for target.
+gmock: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gmock
+.PHONY : gmock
+
+# fast build rule for target.
+gmock/fast:
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build
+.PHONY : gmock/fast
+
+#=============================================================================
+# Target rules for targets named gmock_main
+
+# Build rule for target.
+gmock_main: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gmock_main
+.PHONY : gmock_main
+
+# fast build rule for target.
+gmock_main/fast:
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build
+.PHONY : gmock_main/fast
+
+#=============================================================================
+# Target rules for targets named gtest
+
+# Build rule for target.
+gtest: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gtest
+.PHONY : gtest
+
+# fast build rule for target.
+gtest/fast:
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build
+.PHONY : gtest/fast
+
+#=============================================================================
+# Target rules for targets named gtest_main
+
+# Build rule for target.
+gtest_main: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gtest_main
+.PHONY : gtest_main
+
+# fast build rule for target.
+gtest_main/fast:
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build
+.PHONY : gtest_main/fast
+
 Q1/Question-1.o: Q1/Question-1.cc.o
 .PHONY : Q1/Question-1.o
 
@@ -213,6 +323,30 @@ Q2/Question-2.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Question-2-out.dir/build.make CMakeFiles/Question-2-out.dir/Q2/Question-2.cc.s
 .PHONY : Q2/Question-2.cc.s
 
+Q2/Question-2.test.o: Q2/Question-2.test.cc.o
+.PHONY : Q2/Question-2.test.o
+
+# target to build an object file
+Q2/Question-2.test.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Question-2-test.dir/build.make CMakeFiles/Question-2-test.dir/Q2/Question-2.test.cc.o
+.PHONY : Q2/Question-2.test.cc.o
+
+Q2/Question-2.test.i: Q2/Question-2.test.cc.i
+.PHONY : Q2/Question-2.test.i
+
+# target to preprocess a source file
+Q2/Question-2.test.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Question-2-test.dir/build.make CMakeFiles/Question-2-test.dir/Q2/Question-2.test.cc.i
+.PHONY : Q2/Question-2.test.cc.i
+
+Q2/Question-2.test.s: Q2/Question-2.test.cc.s
+.PHONY : Q2/Question-2.test.s
+
+# target to generate assembly for a file
+Q2/Question-2.test.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Question-2-test.dir/build.make CMakeFiles/Question-2-test.dir/Q2/Question-2.test.cc.s
+.PHONY : Q2/Question-2.test.cc.s
+
 Q3/Question-3.o: Q3/Question-3.cc.o
 .PHONY : Q3/Question-3.o
 
@@ -244,17 +378,29 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... test"
 	@echo "... Question-1-out"
 	@echo "... Question-2-out"
+	@echo "... Question-2-test"
 	@echo "... Question-3-out"
+	@echo "... gmock"
+	@echo "... gmock_main"
+	@echo "... gtest"
+	@echo "... gtest_main"
 	@echo "... Q1/Question-1.o"
 	@echo "... Q1/Question-1.i"
 	@echo "... Q1/Question-1.s"
 	@echo "... Q2/Question-2.o"
 	@echo "... Q2/Question-2.i"
 	@echo "... Q2/Question-2.s"
+	@echo "... Q2/Question-2.test.o"
+	@echo "... Q2/Question-2.test.i"
+	@echo "... Q2/Question-2.test.s"
 	@echo "... Q3/Question-3.o"
 	@echo "... Q3/Question-3.i"
 	@echo "... Q3/Question-3.s"

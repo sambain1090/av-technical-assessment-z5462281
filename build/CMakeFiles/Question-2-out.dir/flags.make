@@ -6,7 +6,7 @@ CXX_DEFINES =
 
 CXX_INCLUDES = 
 
-CXX_FLAGSarm64 =  -arch arm64 -Wall -Wextra -Wpedantic -lpthread
+CXX_FLAGSarm64 = -std=gnu++17 -arch arm64 -Wall -Wextra -Wpedantic -lpthread
 
-CXX_FLAGS =  -arch arm64 -Wall -Wextra -Wpedantic -lpthread
+CXX_FLAGS = -std=gnu++17 -arch arm64 -Wall -Wextra -Wpedantic -lpthread
 

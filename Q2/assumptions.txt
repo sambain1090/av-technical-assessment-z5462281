@@ -1,0 +1,19 @@
+Assumption #1
+
+Added some make task functions 
+
+Assumption #2
+
+Need to add mutex to add time blocking(?)
+
+Assumption #3
+
+Output to console, etc, etc
+
+Assumption #4
+
+No adding variables whenever
+
+Assumption #5
+
+we take in the output stream when we create the thread for transmission (more user friendly)

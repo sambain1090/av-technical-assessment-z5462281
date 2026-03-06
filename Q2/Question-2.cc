@@ -5,26 +5,53 @@
 #include <iomanip>
 #include <atomic>
 
+// Constant expressions
+constexpr uint8_t SIMPLE = 0x00;
+constexpr uint8_t COMPLEX = 0x01;
+
 template<typename T>
 class ThreadSafeQueue {
 private:
     // Implement this
+    std::vector<T> q;
+    std::mutex mtx;
 public:
     void push(T value) {
         // Implement this
-    }
+        std::lock_guard<std::mutex> lock(mtx);
+        q.push_back(std::move(value));
+    }   
     T pop() {
         // Implement this
-        return nullptr;
+        std::lock_guard<std::mutex> lock(mtx);
+        if (q.empty()) {
+            return nullptr;
+        }
+
+        T value = std::move(q.front());
+        q.erase(q.begin());
+        return value;
     }
     size_t size() {
         // Implement this
-        return 0;
+        std::lock_guard<std::mutex> lock(mtx);
+        return q.size();
     }
     // A non-blocking pop for graceful shutdown
     T pop_for_shutdown() {
-        // Implement this
-        return nullptr;
+        if (!mtx.try_lock()) {
+            return nullptr;
+        }
+
+        std::lock_guard<std::mutex> lock(mtx, std::adopt_lock);
+
+        if (q.empty()) {
+            return nullptr;
+        }
+
+        T value = std::move(q.front());
+        q.erase(q.begin());
+        return value;
     }
 };
 
@@ -39,18 +66,48 @@ public:
 
 class SimpleTask : public ITask {
 private:
-    // You can define the members as per your requirement
+
+    float iVal;
+    float pVal;
+
 public:
-    explicit SimpleTask(float val) {}
-    // Implement the necessary functions
+    explicit SimpleTask(float val): iVal(val), pVal(0) {}
+
+    void process() override {
+        pVal = iVal * 2.0;
+    }
+
+    float getProcessedValue() const override {
+        return pVal;
+    }
+
+    uint8_t getTaskType() const override {
+        return SIMPLE;
+    }
 };
 
 class ComplexTask : public ITask {
 private:
-    // You can define the members as per your requirement
+
+    std::vector<int> iNums;
+    int pSum;
+
 public:
-    explicit ComplexTask(std::vector<int> nums) {}
-    // Implement the necessary functions
+    explicit ComplexTask(std::vector<int> nums): iNums(nums), pSum(0) {}
+
+    void process() override {
+        for (unsigned long i{0}; i < iNums.size(); ++i) {
+            pSum += iNums.at(i);
+        }
+    }
+
+    float getProcessedValue() const override {
+        return pSum;
+    }
+
+    uint8_t getTaskType() const override {
+        return COMPLEX;
+    }
 };
 
 
@@ -62,7 +119,21 @@ public:
     TaskGenerator(ThreadSafeQueue<std::unique_ptr<ITask>>& queue, std::atomic<bool>& shutdown)
         : task_queue_(queue), shutdown_(shutdown) {}
     void run() {
-        // Implement the task generation loop with a shutdown check
+        addTask(0);
+        addTask(std::vector<int>( {  } ));
+        addTask(1.234F);
+        addTask(std::vector<int>( { 1, 3, 4, -1, 3, 93, 1013, 11} ));
+        addTask(1.234F);
+        addTask(std::vector<int>( { 1, 3, 4, -1, 3 } ));
+        while (!shutdown_) { }
+    }
+
+    void addTask(float value) {
+        task_queue_.push(std::make_unique<SimpleTask>(SimpleTask(value)));
+    }
+
+    void addTask(std::vector<int> nums) {
+        task_queue_.push(std::make_unique<ComplexTask>(ComplexTask(nums)));
     }
 };
 
@@ -75,9 +146,20 @@ public:
     TaskProcessor(ThreadSafeQueue<std::unique_ptr<ITask>>& t_queue, ThreadSafeQueue<std::unique_ptr<ITask>>& p_queue, std::atomic<bool>& shutdown)
         : task_queue_(t_queue), processed_queue_(p_queue), shutdown_(shutdown) {}
     void run() {
-        // Implement the data processing loop with a shutdown check
+        while (!shutdown_) {
+            if (task_queue_.size() > 0) {
+                std::unique_ptr<ITask> currentTask = task_queue_.pop();
+                currentTask->process();
+                processed_queue_.push(std::move(currentTask));
+            }
+        }   
+
+        while (std::unique_ptr<ITask> currentTask = task_queue_.pop_for_shutdown()) {
+            currentTask->process();
+            processed_queue_.push(std::move(currentTask));
+        }
     }
-};
+};  
 
 class PacketTransmitter {
 private:
@@ -86,14 +168,34 @@ private:
 public:
     PacketTransmitter(ThreadSafeQueue<std::unique_ptr<ITask>>& queue, std::atomic<bool>& shutdown)
         : processed_queue_(queue), shutdown_(shutdown) {}
-    void run() {
+    void run(std::ostream& os) {
         // Implement the data transmission (bitpacking) loop with a shutdown check
+        while (!shutdown_) {
+            if (processed_queue_.size() > 0) {
+                std::unique_ptr<ITask> data = processed_queue_.pop();;
+                transmit(data, os);
+            }
+        }
+
+        while (std::unique_ptr<ITask> data = processed_queue_.pop_for_shutdown()) {
+                transmit(data, os);
+        }
     }
     void transmit(const std::unique_ptr<ITask>& data, std::ostream& os) {
         uint8_t buffer[8] = {0};
-        
-        // Bitpacking logic
-        // Implement the bitpacking logic here
+
+        buffer[0] |= data->getTaskType();
+        //uint8_t test[4] = {data->getProcessedValue()};
+        float processedValue = data->getProcessedValue();
+
+        std::memcpy(&buffer[1], &processedValue, sizeof(float));
+        std::reverse(&buffer[1], &buffer[5]); // convert to big endian
+
+        uint32_t timeStamp = static_cast<uint32_t>(std::time(nullptr));
+
+        buffer[5] |= timeStamp >> 16 & 0xFF;
+        buffer[6] |= timeStamp >> 8 & 0xFF;
+        buffer[7] |= timeStamp & 0xFF;
 
         // Print the buffer in hex format for verification
         os << "Packet: ";
@@ -132,3 +234,13 @@ int main() {
 
     return 0;
 }
+
+//To-do:   
+//          - Make tests work
+//Finished: - Process
+//          - Simple and complex tasks
+//          - transmission method
+//          - make queue thread safe 
+//          - add console output
+//          - Think more on task generation
+//          - add correct shutdowns
