@@ -1,1 +1,1 @@
-/usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names "CMakeFiles/Question-2-test.dir/Q2/Question-2.test.cc.o" -o Question-2-test  lib/libgtest_main.a lib/libgtest.a
+/usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names "CMakeFiles/Question-2-test.dir/Q2/Question-2.test.cc.o" -o Question-2-test  lib/libgtest_main.a -lpthread lib/libgtest.a

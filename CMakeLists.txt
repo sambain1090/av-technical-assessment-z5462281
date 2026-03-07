@@ -24,4 +24,5 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 add_executable(Question-2-test Q2/Question-2.test.cc)
-target_link_libraries(Question-2-test GTest::gtest_main)  
+target_compile_definitions(Question-2-test PRIVATE TESTING)
+target_link_libraries(Question-2-test GTest::gtest_main pthread)  

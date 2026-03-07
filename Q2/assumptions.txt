@@ -1,19 +1,17 @@
 Assumption #1
 
-Added some make task functions 
+Tasks are added inside the task generator run function. I do this assuming that
+tasks aren't added and removed often, so someone using these functions doesn't
+need to add tasks themselves.
 
 Assumption #2
 
-Need to add mutex to add time blocking(?)
+We take in the output stream when we create the transmission thread. This allows
+the user more flexibility in where their hex verification is stored and is
+especially helpful for testing.
 
 Assumption #3
 
-Output to console, etc, etc
-
-Assumption #4
-
-No adding variables whenever
-
-Assumption #5
-
-we take in the output stream when we create the thread for transmission (more user friendly)
+If a tasks process function hasn't been run its processed value will be 0. This
+is just to avoid undefined behaviour as under any normal circumstance the task 
+will always be processed before transmission.

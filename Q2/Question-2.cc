@@ -12,17 +12,16 @@ constexpr uint8_t COMPLEX = 0x01;
 template<typename T>
 class ThreadSafeQueue {
 private:
-    // Implement this
     std::vector<T> q;
     std::mutex mtx;
+
 public:
     void push(T value) {
-        // Implement this
         std::lock_guard<std::mutex> lock(mtx);
         q.push_back(std::move(value));
     }   
+
     T pop() {
-        // Implement this
         std::lock_guard<std::mutex> lock(mtx);
         if (q.empty()) {
             return nullptr;
@@ -32,11 +31,12 @@ public:
         q.erase(q.begin());
         return value;
     }
+
     size_t size() {
-        // Implement this
         std::lock_guard<std::mutex> lock(mtx);
         return q.size();
     }
+
     // A non-blocking pop for graceful shutdown
     T pop_for_shutdown() {
         if (!mtx.try_lock()) {
@@ -64,9 +64,9 @@ public:
     virtual uint8_t getTaskType() const = 0;
 };
 
+// Takes a float input and if processed, doubles the value
 class SimpleTask : public ITask {
 private:
-
     float iVal;
     float pVal;
 
@@ -74,7 +74,7 @@ public:
     explicit SimpleTask(float val): iVal(val), pVal(0) {}
 
     void process() override {
-        pVal = iVal * 2.0;
+        pVal = iVal * 2.0f;
     }
 
     float getProcessedValue() const override {
@@ -86,11 +86,12 @@ public:
     }
 };
 
+// Takes a vector of integers as input and if processed, sums all the elements
+// into a integer value
 class ComplexTask : public ITask {
 private:
-
     std::vector<int> iNums;
-    int pSum;
+    float pSum;
 
 public:
     explicit ComplexTask(std::vector<int> nums): iNums(nums), pSum(0) {}
@@ -115,12 +116,13 @@ class TaskGenerator {
 private:
     ThreadSafeQueue<std::unique_ptr<ITask>>& task_queue_;
     std::atomic<bool>& shutdown_;
+
 public:
     TaskGenerator(ThreadSafeQueue<std::unique_ptr<ITask>>& queue, std::atomic<bool>& shutdown)
         : task_queue_(queue), shutdown_(shutdown) {}
     void run() {
-        addTask(0);
-        addTask(std::vector<int>( {  } ));
+        addTask(20.0f);
+        addTask(std::vector<int>( { 20 } ));
         addTask(1.234F);
         addTask(std::vector<int>( { 1, 3, 4, -1, 3, 93, 1013, 11} ));
         addTask(1.234F);
@@ -128,6 +130,10 @@ public:
         while (!shutdown_) { }
     }
 
+    // Added a function to automatically create a simple or complex task based
+    // on input using function overloading. If the input is a float it creates
+    // a simple task and adds it to the queue, if its a vector of integers 
+    // it creates a complex task and pushes it.
     void addTask(float value) {
         task_queue_.push(std::make_unique<SimpleTask>(SimpleTask(value)));
     }
@@ -142,9 +148,11 @@ private:
     ThreadSafeQueue<std::unique_ptr<ITask>>& task_queue_;
     ThreadSafeQueue<std::unique_ptr<ITask>>& processed_queue_;
     std::atomic<bool>& shutdown_;
+
 public:
     TaskProcessor(ThreadSafeQueue<std::unique_ptr<ITask>>& t_queue, ThreadSafeQueue<std::unique_ptr<ITask>>& p_queue, std::atomic<bool>& shutdown)
         : task_queue_(t_queue), processed_queue_(p_queue), shutdown_(shutdown) {}
+    
     void run() {
         while (!shutdown_) {
             if (task_queue_.size() > 0) {
@@ -168,8 +176,8 @@ private:
 public:
     PacketTransmitter(ThreadSafeQueue<std::unique_ptr<ITask>>& queue, std::atomic<bool>& shutdown)
         : processed_queue_(queue), shutdown_(shutdown) {}
+
     void run(std::ostream& os) {
-        // Implement the data transmission (bitpacking) loop with a shutdown check
         while (!shutdown_) {
             if (processed_queue_.size() > 0) {
                 std::unique_ptr<ITask> data = processed_queue_.pop();;
@@ -181,18 +189,22 @@ public:
                 transmit(data, os);
         }
     }
+
     void transmit(const std::unique_ptr<ITask>& data, std::ostream& os) {
         uint8_t buffer[8] = {0};
 
+        // sets the first byte to the task byte representation
         buffer[0] |= data->getTaskType();
-        //uint8_t test[4] = {data->getProcessedValue()};
         float processedValue = data->getProcessedValue();
 
+        // copies the data into 4 bytes of the buffer starting from the first
+        // second array position
         std::memcpy(&buffer[1], &processedValue, sizeof(float));
         std::reverse(&buffer[1], &buffer[5]); // convert to big endian
 
         uint32_t timeStamp = static_cast<uint32_t>(std::time(nullptr));
-
+        
+        // adds the lowest 24 bits of unix time to the end of the buffer
         buffer[5] |= timeStamp >> 16 & 0xFF;
         buffer[6] |= timeStamp >> 8 & 0xFF;
         buffer[7] |= timeStamp & 0xFF;
@@ -205,6 +217,8 @@ public:
         os << std::dec << std::endl;
     }
 };
+
+#ifndef TESTING
 
 int main() {
     std::cout << "Starting the data generation pipeline" << std::endl;
@@ -235,12 +249,4 @@ int main() {
     return 0;
 }
 
-//To-do:   
-//          - Make tests work
-//Finished: - Process
-//          - Simple and complex tasks
-//          - transmission method
-//          - make queue thread safe 
-//          - add console output
-//          - Think more on task generation
-//          - add correct shutdowns
+#endif
