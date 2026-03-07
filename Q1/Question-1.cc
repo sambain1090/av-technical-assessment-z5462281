@@ -43,7 +43,7 @@ void writeRRSpeed(std::ifstream& candump, std::ofstream& output) {
     uint16_t RRBytes;
     double wheelSpeedRR;
 
-    while (getline (candump, line)) {
+    while (getline(candump, line)) {
         if (line.length() > 42) {
 
             RRBytes = (std::stoi(line.substr(40, 2), nullptr, 16) << 8) | 
